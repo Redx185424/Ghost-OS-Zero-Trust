@@ -1,0 +1,6 @@
+Flask>=3.0.0
+python-whois>=0.9.4
+python-dotenv>=1.0.0
+# Optional — enables true PDF export in modules/report.py.
+# HTML reports work fine without it.
+# weasyprint>=61.0

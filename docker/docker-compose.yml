@@ -1,0 +1,30 @@
+# Ghost OS Lab — deliberately vulnerable targets for safe, legal demoing.
+# Run with: docker compose -f docker/docker-compose.yml up -d
+#
+# Once running, add "localhost" or "127.0.0.1" (already in data/allowlist.json)
+# as your target in Ghost OS and point recon/plugins at the ports below.
+
+version: "3.8"
+
+services:
+  dvwa:
+    image: vulnerables/web-dvwa
+    container_name: ghostos-lab-dvwa
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+
+  juice-shop:
+    image: bkimminich/juice-shop
+    container_name: ghostos-lab-juiceshop
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  metasploitable:
+    image: tleemcjr/metasploitable2
+    container_name: ghostos-lab-metasploitable
+    ports:
+      - "2222:22"
+      - "8080:80"
+    restart: unless-stopped

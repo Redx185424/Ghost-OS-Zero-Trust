@@ -1,0 +1,17 @@
+[
+  {
+    "host": "scanme.nmap.org",
+    "description": "Official Nmap project test target — explicitly permits scanning",
+    "type": "public-test-target"
+  },
+  {
+    "host": "localhost",
+    "description": "Local Docker lab (see docker/docker-compose.yml) — DVWA on :8081, Juice Shop on :3000",
+    "type": "local-lab"
+  },
+  {
+    "host": "127.0.0.1",
+    "description": "Local Docker lab, IP form",
+    "type": "local-lab"
+  }
+]

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ghost OS — Zero Trust Edition</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="landing">
+    <h1>GHOST<span class="accent">OS</span></h1>
+    <p class="edition-badge">ZERO TRUST EDITION</p>
+    <p class="tagline">Every action requires a name. Nothing runs without consent.</p>
+    <p class="user-info">Session: {{ user }} &middot; Role: {{ role }}</p>
+    <a class="cta" href="{{ url_for('dashboard') }}">Enter Dashboard</a>
+    <a class="link" href="{{ url_for('legal') }}">Acceptable Use &amp; Legal</a>
+  </div>
+</body>
+</html>

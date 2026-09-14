@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ghost OS — Zero Trust Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="scanlines"></div>
+
+  <header class="topbar">
+    <div class="brand">GHOST<span class="accent">OS</span> <span class="edition">ZERO TRUST</span></div>
+    <div class="role-switch">
+      <span class="role-label">CLEARANCE</span>
+      <select id="roleSelect">
+        <option value="analyst">ANALYST</option>
+        <option value="lead">LEAD</option>
+        <option value="admin">ADMIN</option>
+      </select>
+    </div>
+  </header>
+
+  <main class="dashboard">
+
+    <div class="section-label"><span>01</span> INTELLIGENCE GATHERING</div>
+    <div class="grid">
+      <section class="panel">
+        <h2><span class="icon">🛰️</span> Passive OSINT <span class="tag safe">no auth required</span></h2>
+        <p class="hint">DNS, WHOIS, and certificate-transparency subdomain search. Safe against any public domain.</p>
+        <input id="osintTarget" placeholder="example.com">
+        <button onclick="runOsint()">Run OSINT</button>
+        <pre id="osintOutput" class="output"></pre>
+      </section>
+
+      <section class="panel wide">
+        <h2><span class="icon">🕸️</span> Attack Surface Map</h2>
+        <p class="hint">Passive OSINT always included. Grant consent below first to add open-port nodes.</p>
+        <input id="mapTarget" placeholder="example.com">
+        <button onclick="renderAttackSurfaceMap()">Build Map</button>
+        <div id="mapContainer" class="map-container"></div>
+      </section>
+    </div>
+
+    <div class="section-label"><span>02</span> AUTHORIZATION &amp; ACTIVE RECON</div>
+    <div class="grid">
+      <section class="panel">
+        <h2><span class="icon">🔐</span> Authorization Gate <span class="tag warn">required for active modules</span></h2>
+        <p class="hint">Target must be on the lab allow-list: {{ allowlist|map(attribute='host')|join(', ') }}</p>
+        <input id="consentTarget" placeholder="scanme.nmap.org">
+        <input id="consentText" placeholder='Type: I AM AUTHORIZED TO TEST <target>' style="width:100%">
+        <button onclick="grantConsent()">Submit Consent</button>
+        <pre id="consentOutput" class="output"></pre>
+      </section>
+
+      <section class="panel">
+        <h2><span class="icon">🎯</span> Active Recon <span class="tag danger">lab targets + consent only</span></h2>
+        <input id="reconTarget" placeholder="scanme.nmap.org">
+        <button onclick="runRecon()">Run Recon</button>
+        <pre id="reconOutput" class="output"></pre>
+      </section>
+
+      <section class="panel">
+        <h2><span class="icon">🧩</span> Plugins</h2>
+        <p class="hint">Auto-discovered from /plugins. Loaded: {{ plugins|join(', ') }}</p>
+        <input id="pluginTarget" placeholder="example.com">
+        <button onclick="runPlugin('header_analyzer')">Run header_analyzer</button>
+        <pre id="pluginOutput" class="output"></pre>
+      </section>
+    </div>
+
+    <div class="section-label"><span>03</span> RISK ASSESSMENT</div>
+    <div class="grid">
+      <section class="panel">
+        <h2><span class="icon">🏆</span> Zero Trust Score <span class="tag safe">from last recon</span></h2>
+        <button onclick="runScore()">Score Last Recon Result</button>
+        <div id="scoreBadge" class="score-badge">—</div>
+        <pre id="scoreOutput" class="output"></pre>
+      </section>
+
+      <section class="panel">
+        <h2><span class="icon">🧠</span> AI Risk Analyst <span class="tag warn">real Groq call if GROQ_API_KEY is set</span></h2>
+        <button onclick="runAiAnalysis()">Analyze Last Recon Result</button>
+        <pre id="aiOutput" class="output"></pre>
+      </section>
+
+      <section class="panel">
+        <h2><span class="icon">📄</span> Report Generation <span class="tag warn">requires 'lead' role</span></h2>
+        <button onclick="generateReport()">Generate Report from Last Recon</button>
+        <pre id="reportOutput" class="output"></pre>
+      </section>
+    </div>
+
+    <div class="section-label"><span>04</span> DEFENSE &amp; ACCOUNTABILITY</div>
+    <div class="grid">
+      <section class="panel wide">
+        <h2><span class="icon">📡</span> Live Defend Feed <span class="tag danger">real audit events + labeled simulated traffic</span></h2>
+        <button onclick="connectDefendFeed()">Connect Feed</button>
+        <button onclick="injectSimulatedEvent()">Inject Simulated Event</button>
+        <div id="defendFeed" class="terminal-feed"></div>
+      </section>
+
+      <section class="panel">
+        <h2><span class="icon">📜</span> Audit Trail <span class="tag warn">requires 'lead' role</span></h2>
+        <button onclick="loadAudit()">Refresh Audit Log</button>
+        <pre id="auditOutput" class="output"></pre>
+      </section>
+
+      <section class="panel">
+        <h2><span class="icon">⏱️</span> Session Timeline</h2>
+        <button onclick="renderTimeline()">Build Timeline</button>
+        <div id="timelineContainer" class="timeline-container"></div>
+      </section>
+    </div>
+
+    <div class="section-label"><span>05</span> ASSISTANT</div>
+    <div class="grid">
+      <section class="panel wide">
+        <h2><span class="icon">💬</span> Ghost OS Assistant <span class="tag warn">general Q&amp;A + security concepts</span></h2>
+        <p class="hint">Powered by Groq (or Claude, if configured). Answers general questions and security/hacking
+          <em>concepts</em> — defensive practice, vulnerability classes, tools, careers, CTF theory. Does not
+          generate exploit code or live-attack instructions — this is a public tool, see README.</p>
+        <div id="chatWindow" class="chat-window"></div>
+        <div class="chat-input-row">
+          <input id="chatInput" placeholder="Ask anything — 'explain XSS', 'best Python libraries for APIs', 'how do I start in security'..." style="flex:1">
+          <button onclick="sendChatMessage()">Send</button>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
